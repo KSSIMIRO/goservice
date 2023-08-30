@@ -2,7 +2,9 @@ package com.soulcode.goserviceapp.controller;
 
 import com.soulcode.goserviceapp.domain.Servico;
 import com.soulcode.goserviceapp.domain.Usuario;
+import com.soulcode.goserviceapp.domain.UsuarioLog;
 import com.soulcode.goserviceapp.service.ServicoService;
+import com.soulcode.goserviceapp.service.UsuarioLogService;
 import com.soulcode.goserviceapp.service.UsuarioService;
 import com.soulcode.goserviceapp.service.exceptions.ServicoNaoEncontradoException;
 import com.soulcode.goserviceapp.service.exceptions.UsuarioNaoEncontradoException;
@@ -23,6 +25,9 @@ public class AdministradorController {
 
     @Autowired
     private ServicoService servicoService;
+
+    @Autowired
+    private UsuarioLogService usuarioLogService;
 
     @GetMapping(value = "/servicos")
     public ModelAndView servicos() {
@@ -51,9 +56,9 @@ public class AdministradorController {
     public String removeService(@RequestParam(name = "servicoId") Long id, RedirectAttributes attributes) {
         try {
             servicoService.removeServicoById(id);
-            attributes.addFlashAttribute("successMessage", "Serviço removido");
+            attributes.addFlashAttribute("successMessage", "Serviço removido.");
         } catch (Exception ex) {
-            attributes.addFlashAttribute("errorMessage", "Erro ao excluir serviço");
+            attributes.addFlashAttribute("errorMessage", "Erro ao excluir serviço.");
         }
         return "redirect:/admin/servicos";
     }
@@ -67,7 +72,7 @@ public class AdministradorController {
         } catch (ServicoNaoEncontradoException ex) {
             mv.addObject("errorMessage", ex.getMessage());
         } catch (Exception ex) {
-            mv.addObject("errorMessage", "Erro ao buscar dados do seviço.");
+            mv.addObject("errorMessage", "Erro ao buscar dados do serviço.");
         }
         return mv;
     }
@@ -79,10 +84,8 @@ public class AdministradorController {
             attributes.addFlashAttribute("successMessage", "Dados do serviço alterados.");
         } catch (ServicoNaoEncontradoException ex) {
             attributes.addFlashAttribute("errorMessage", ex.getMessage());
-
         } catch (Exception ex) {
-            attributes.addFlashAttribute("errorMessage", "Erro ao alterar dados do serviço");
-
+            attributes.addFlashAttribute("errorMessage", "Erro ao alterar dados do serviço.");
         }
         return "redirect:/admin/servicos";
     }
@@ -132,5 +135,17 @@ public class AdministradorController {
             attributes.addFlashAttribute("errorMessage", "Erro ao habilitar usuário.");
         }
         return "redirect:/admin/usuarios";
+    }
+
+    @GetMapping(value = "/dashboard")
+    public ModelAndView dashboard() {
+        ModelAndView mv = new ModelAndView("dashboard");
+        try {
+            List<UsuarioLog> logsAuth = usuarioLogService.findAll();
+            mv.addObject("logsAuth", logsAuth);
+        } catch (Exception ex) {
+            mv.addObject("errorMessage", "Erro ao buscar dados de log de autenticação.");
+        }
+        return mv;
     }
 }
